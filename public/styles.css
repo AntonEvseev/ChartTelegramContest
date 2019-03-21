@@ -1,0 +1,30 @@
+.btn{
+	min-width: 100px;
+	height: 40px;
+	border: solid 1px rgba(194,190,190,1);
+	border-radius: 17px;
+	margin-top:15px;
+	margin-left: 15px;
+	display: flex;
+	align-items: center;
+	padding-left: 16px;
+	cursor: pointer;
+}
+
+h2{
+	text-align: center;
+	margin-top: 16px;
+	margin-bottom: 16px;
+}
+
+.btnBlock{
+	display: flex;
+}
+
+.icon{
+	width: 24px;	
+}
+.btnText{
+	font-size: 22px;
+	padding-left: 16px;
+}
