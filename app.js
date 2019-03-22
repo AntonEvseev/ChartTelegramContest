@@ -17,5 +17,5 @@ app.get('/data', (req, res) => {
 app.get("/", function(request, response){      
     response.sendFile(__dirname + "/index.html");
 });
-  
+
 app.listen(process.env.PORT || 3000);

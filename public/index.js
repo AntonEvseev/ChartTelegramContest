@@ -232,25 +232,31 @@ function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
         if(isPartChart){ 
            // var diff = (maxY - minY)/6;
            var diff = 0;
+           console.log(maxYPart, minYPart);
            isPartChart ? diff = (maxYPart - minYPart)/6 : diff = (maxY - minY)/6;
+           console.log(diff);
             var yLabels = [];
           //  console.log(maxY, minY, diff)
             //yLabels.push(minY);
            // yLabels.push(maxY);
             ctx.beginPath();
            // console.log(yLabels)
-           ctx.strokeStyle = "rgba(242,242,242,0.5)";          
+           ctx.strokeStyle = "rgba(242,242,242,0.5)";  
+           
+           var minimumy = 0;
+           isPartChart ? minimumy = minYPart: minimumy = minY;//?? move to top side        
             for(var i = 1; i < 6; i++){
-             //   console.log(i)
-                var ylabel = minY + (diff*i);
+             //   console.log(i)           
+              
+                var ylabel = minimumy + (diff*i);//fixed minY
                 yLabels.push(ylabel);
             }     
-           // console.log(yLabels)
+            console.log(yLabels)
             for(var i = 0; i < yLabels.length; i++) { 
                 var offset = 5;
                 //var currentY = getYPixel(yLabels[i], height, maxY, minY);
                 var currentY = getYPixel(yLabels[i], height, isPartChart ? maxYPart : maxY, isPartChart ? minYPart : minY);
-               // console.log(yLabels[i],maxYPart,height, minYPart, diff)
+                console.log(getYPixel(yLabels[i], height, isPartChart ? maxYPart : maxY, isPartChart ? minYPart : minY))
                 ctx.fillText(Math.round(yLabels[i]), 55, currentY - offset);                         
                 ctx.moveTo(50, currentY);
                 ctx.lineTo(canvasWidth, currentY); 
@@ -367,16 +373,21 @@ function getMaxY(data, initValue, numberArray, indexX1, indexX2){
 }
 
 function getMinY(data, initValue, numberArray, indexX1, indexX2){ 
+   
       var minValue = initValue;
+   //   console.log(minValue);
     for(let c = 0; c < data.columns.length; c++){ 
         if(data.columns[c][0] != "x" && isDrawAxisLine(data.columns[c][0], numberArray)){
+         //   console.log(data.columns[c].slice(indexX1, indexX2),indexX1, indexX2)
            for(var i = indexX1; i <= indexX2; i++){
               if(data.columns[c][i] < minValue) {
+          //        console.log(data.columns[c][i]);
                 minValue = data.columns[c][i];
                }
            }
        }
     }
+    console.log(minValue)
     return minValue;
    /* var minValue = initValue;
     for(let c = 0; c < data.columns.length; c++){ 
