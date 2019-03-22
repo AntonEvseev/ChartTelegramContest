@@ -1,7 +1,7 @@
 'use strict';
 
 let dataChart = {};
-var graph = document.getElementById('fullChart1');//? delete
+//var graph = document.getElementById('fullChart1');//? delete
 var canvasWidth = 0;
 var canvasHeight = 0;
 var chartInfos = [];
@@ -51,8 +51,10 @@ init();
 function preDraw() {
     for(let d = 0; d < dataChart.length; d++){
         var canvas = document.getElementById('fullChart' + d.toString());
-        var screenWidth = window.screen.width;
-        canvas.width = window.screen.width * 0.9; 
+        //var screenWidth = window.screen.width;
+        canvas.width = window.innerWidth * 0.9; //
+       // console.log(window.screen.width)
+       // console.log(window.innerWidth)
         canvasWidth = canvas.scrollWidth;
         canvasHeight = canvas.scrollHeight;         
 
@@ -70,18 +72,18 @@ function preDraw() {
             startDragX < currentChart.sliderX1 && startDragX > currentChart.sliderX2 + 10 ? drag = false : null;
         });
 
-        canvas.addEventListener('mouseout', function(e) {
+        canvas.addEventListener('touchend', function(e) {//mouseout
             drag = false;
             numberSlider = 0;//??
         });
 
-        canvas.addEventListener('mouseup', function(e) {
+        canvas.addEventListener('touchstart', function(e) {//mouseup
             console.log('mouseup');
             drag = false;
             numberSlider = 0;//??
          });
 
-        canvas.addEventListener('mousemove', function(e) {
+        canvas.addEventListener('touchmove', function(e) {//mousemove
             if(drag){
                 var currentChart = chartInfos.find(x => x.chartName == e.target.id);
                 if(numberSlider == 1){
@@ -92,7 +94,6 @@ function preDraw() {
                 }
                 if(numberSlider == 3){
                     var diffDistanceMove = startDragX - e.offsetX;//?? rename
-                    //console.log(currentChart, currentChart.sliderX2-currentChart.sliderX1)
                     if(currentChart.sliderX1 >= 0 && currentChart.sliderX2 <= canvasWidth - 10){
                         currentChart.sliderX2 < canvasWidth - 10  ? currentChart.sliderX1 = startDragSliderX1 - diffDistanceMove : null;
                         currentChart.sliderX1 < 0 ? currentChart.sliderX1 = 0   : null; //?
@@ -110,7 +111,7 @@ function preDraw() {
 
                 //DRAW PART CHART Double
                 var currentPartCanvas = document.getElementById('partChart' + d.toString());
-                currentPartCanvas.width = window.screen.width * 0.9;                 
+                currentPartCanvas.width = window.innerWidth * 0.9;   //              
                 var currentPartCtx = currentPartCanvas.getContext('2d');
                 var currentPartCanvasHeight = currentPartCanvas.scrollHeight;
                 currentPartCtx.clearRect(0,0,canvasWidth,currentPartCanvasHeight);
@@ -131,7 +132,7 @@ function preDraw() {
 
            //DRAW PART CHART Double
             var currentPartCanvas = document.getElementById('partChart' + d.toString());
-            currentPartCanvas.width = window.screen.width * 0.9; 
+            currentPartCanvas.width = window.innerWidth * 0.9; //
             var currentPartCtx = currentPartCanvas.getContext('2d');                         
             var currentPartCanvasHeight = currentPartCanvas.scrollHeight;
             currentPartCtx.clearRect(0,0,canvasWidth,currentPartCanvasHeight);
@@ -147,7 +148,6 @@ function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
     var minY = getMinY( data, maxY, numberArray, 1, data.columns[0].length -1);//, sliderX1, sliderX2 var minY = getMinY(data, maxY, numberArray);
    var maxYPart = 0;
    var minYPart = 0;
-   //
     
     for(let c = 0; c < data.columns.length; c++){ 
         ctx.beginPath();
@@ -155,7 +155,7 @@ function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
             ctx.fillStyle = "rgba(242,237,237,0.1)";
             ctx.fillRect(0,0,sliderX1,150);
             ctx.fillStyle = "rgba(242,237,237,0.1)";
-            ctx.fillRect((sliderX2+10),0,(canvasWidth - sliderX2 - 10),150);
+            ctx.fillRect((sliderX2+10),0,(canvasWidth - sliderX2 - 10),74);
                             //Draw slider
             ctx.fillStyle = "rgba(194,190,190,1)";
             ctx.fillRect(sliderX1, 0, 10, height);    
@@ -164,7 +164,7 @@ function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
             ctx.fillStyle = 'rgba(194,190,190,1)';
             ctx.fillRect(sliderX1, 0, ((sliderX2+10)-sliderX1),1);
             ctx.fillStyle = 'rgba(194,190,190,1)';
-            ctx.fillRect(sliderX1, 149, ((sliderX2+10)-sliderX1),1);
+            ctx.fillRect(sliderX1, 74, ((sliderX2+10)-sliderX1),1);
                             //end draw slider
         }
         if(data.columns[c][0] == "x"){            
@@ -188,28 +188,18 @@ function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
                 filteredDataX = filteredDataX.filter(x=> x >= cminX && x <= cmaxX);
                 maxX = cmaxX;
                 minX = cminX;
-                
-            //get index
-           // console.log(data.columns[c]);
-            //console.log(filteredDataX);
-            //console.log(filteredDataX[0], filteredDataX[filteredDataX.length -1]);
-            //console.log(data.columns[c].indexOf(filteredDataX[0]), data.columns[c].indexOf(filteredDataX[filteredDataX.length -1]));
-             //Get Y Max and Min in arrays  
-            //var testFdata =data.columns[c].filter(x=>x >=filteredDataX[0] <= filteredDataX[filteredDataX.length -1]);// rename
-           // maxY = getMaxY(data, 0, numberArray);//, data.columns[c].indexOf(filteredDataX[0]), data.columns[c].indexOf(filteredDataX[filteredDataX.length -1])
-           // minY = getMinY(data, maxY, numberArray);//, data.columns[c].indexOf(filteredDataX[0]), data.columns[c].indexOf(filteredDataX[filteredDataX.length -1])
-          
-           //
-           var indexX1 = data.columns[c].indexOf(filteredDataX[0]);
-           var indexX2 = data.columns[c].indexOf(filteredDataX[filteredDataX.length -1]);
-          // console.log(indexX1, indexX2)
-            maxYPart = getMaxY(data, 0, numberArray, indexX1, indexX2);//, sliderX1, sliderX2 var minY = getMinY(data, maxY, numberArray);
-            minYPart = getMinY(data, maxYPart, numberArray, indexX1, indexX2);//, sliderX1, sliderX2 var minY = getMinY(data, maxY, numberArray);
-          
-            //
+
+                var indexX1 = data.columns[c].indexOf(filteredDataX[0]);
+                var indexX2 = data.columns[c].indexOf(filteredDataX[filteredDataX.length -1]);
+                maxYPart = getMaxY(data, 0, numberArray, indexX1, indexX2);//, sliderX1, sliderX2 var minY = getMinY(data, maxY, numberArray);
+                minYPart = getMinY(data, maxYPart, numberArray, indexX1, indexX2);//, sliderX1, sliderX2 var minY = getMinY(data, maxY, numberArray); 
+
                 //Draw Data Info                
-                var stepIndex = Math.floor(filteredDataX.length/6);//?????
-                stepIndex < 6 ? stepIndex = 1 : null;
+                //var stepIndex = Math.floor(filteredDataX.length/6);//?????
+                var stepIndex = 0;
+                filteredDataX.length >= 8 ? stepIndex = Math.floor(filteredDataX.length/6) : stepIndex = 1;
+                //stepIndex < 6 ? stepIndex = 6 : null;
+               // console.log(filteredDataX, stepIndex)
                 for(var i = 0; i < filteredDataX.length; i = i + stepIndex) {
                     ctx.fillText(new Date(filteredDataX[i]).toDateString(), getXPixel(filteredDataX[i], canvasWidth, maxX, minX), 300);//change height
                 }
@@ -219,10 +209,7 @@ function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
         var axisValue = data.columns[c][0];    
         if(isDrawAxisLine(axisValue, numberArray) && axisValue != 'x'){
             ctx.strokeStyle = data.colors[axisValue];
-            for(var i = 1; i < data.columns[c].length; i++) { 
-                //console.log(getYPixel(data.columns[c][i], height, isPartChart ? maxYPart : maxY, isPartChart ? minYPart :minY));
-           //     console.log(data.columns[c][i], height, isPartChart ? maxYPart : maxY, isPartChart ? minYPart :minY);
-                
+            for(var i = 1; i < data.columns[c].length; i++) {                 
               ctx.lineTo(getXPixel(data.columns[0][i], canvasWidth, maxX, minX), getYPixel(data.columns[c][i], height, isPartChart ? maxYPart : maxY, isPartChart ? minYPart :minY));
             } 
             ctx.stroke();
@@ -230,42 +217,28 @@ function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
                 
         //Draw y-line and add y-text
         if(isPartChart){ 
-           // var diff = (maxY - minY)/6;
-           var diff = 0;
-           console.log(maxYPart, minYPart);
-           isPartChart ? diff = (maxYPart - minYPart)/6 : diff = (maxY - minY)/6;
-           console.log(diff);
+            var diff = 0;
+            isPartChart ? diff = (maxYPart - minYPart)/6 : diff = (maxY - minY)/6;
             var yLabels = [];
-          //  console.log(maxY, minY, diff)
-            //yLabels.push(minY);
-           // yLabels.push(maxY);
             ctx.beginPath();
-           // console.log(yLabels)
-           ctx.strokeStyle = "rgba(242,242,242,0.5)";  
-           
-           var minimumy = 0;
-           isPartChart ? minimumy = minYPart: minimumy = minY;//?? move to top side        
+            ctx.strokeStyle = "rgba(242,242,242,0.5)";  
+            
+            var currMinY = 0;
+            isPartChart ? currMinY = minYPart: currMinY = minY;     
             for(var i = 1; i < 6; i++){
-             //   console.log(i)           
-              
-                var ylabel = minimumy + (diff*i);//fixed minY
+                var ylabel = currMinY + (diff*i);
                 yLabels.push(ylabel);
             }     
-            console.log(yLabels)
             for(var i = 0; i < yLabels.length; i++) { 
                 var offset = 5;
-                //var currentY = getYPixel(yLabels[i], height, maxY, minY);
                 var currentY = getYPixel(yLabels[i], height, isPartChart ? maxYPart : maxY, isPartChart ? minYPart : minY);
-                console.log(getYPixel(yLabels[i], height, isPartChart ? maxYPart : maxY, isPartChart ? minYPart : minY))
-                ctx.fillText(Math.round(yLabels[i]), 55, currentY - offset);                         
-                ctx.moveTo(50, currentY);
-                ctx.lineTo(canvasWidth, currentY); 
-                                   
+                ctx.fillText(Math.round(yLabels[i]), 30, currentY - offset);                         
+                ctx.moveTo(25, currentY);
+                ctx.lineTo(canvasWidth, currentY);                                    
             } 
-           ctx.stroke();
+            ctx.stroke();
         }
-    }  
- 
+    }   
 }
 
 
@@ -281,7 +254,7 @@ function addButtons() {
                 element.insertAdjacentHTML('beforeend', blockButtontHTML);
                 var buttonsToSubs = document.getElementById(i.toString() + '-' + dataChart[i].names[prop].toString());
                                         //Subscription Btn Click
-                buttonsToSubs.addEventListener('mousedown', function(e) { 
+                buttonsToSubs.addEventListener('mousedown', function(e) { //mousedown
 
                     var id = e.target.id;
                     if (e.currentTarget !== e.target) {
@@ -315,7 +288,6 @@ function addButtons() {
                     var currentFullCtx = currentFullCanvas.getContext('2d');
                     currentFullCtx.clearRect(0,0,canvasWidth,canvasHeight);
                     draw(currentFullCtx, dataChart[position], currentChart.sliderX1, currentChart.sliderX2, false, canvasHeight, position);
-                  //  console.log(position, nameLine, isDisabled)
 
                         //DRAW PART CHART Double
                     var currentPartCanvas = document.getElementById('partChart' + position.toString());
@@ -339,8 +311,6 @@ function getXPixel(val, width, maxX, minX) {
 }
 
 function getYPixel(val, height, maxY, minY) {
- //   console.log(val, height, maxY, minY);
-  //  console.log(height - (val-minY)/((maxY - minY)/height))
     return height - (val-minY)/((maxY - minY)/height);  
 }
 
@@ -348,58 +318,28 @@ function getMaxY(data, initValue, numberArray, indexX1, indexX2){
     var maxValue= initValue;
     for(var c = 0; c < data.columns.length; c++){ 
         if(data.columns[c][0] != "x" && isDrawAxisLine(data.columns[c][0], numberArray)){
-          //  console.log(data.columns[c].slice(indexX1, indexX2))
           for(var i = indexX1; i <= indexX2; i++) {
                if(data.columns[c][i] > maxValue) {
-                //   console.log(data.columns[c][i]);
                 maxValue = data.columns[c][i];
                }
            }
        }
     }
     return maxValue;
-
-    /*var maxValue= initValue;
-    for(var c = 0; c < data.columns.length; c++){ 
-        if(data.columns[c][0] != "x" && isDrawAxisLine(data.columns[c][0], numberArray)){
-          for(var i = 1; i < data.columns[c].length; i++) {
-               if(data.columns[c][i] > maxValue) {
-                maxValue = data.columns[c][i];
-               }
-           }
-       }
-    }
-    return maxValue;*/
 }
 
-function getMinY(data, initValue, numberArray, indexX1, indexX2){ 
-   
-      var minValue = initValue;
-   //   console.log(minValue);
+function getMinY(data, initValue, numberArray, indexX1, indexX2){   
+    var minValue = initValue;
     for(let c = 0; c < data.columns.length; c++){ 
         if(data.columns[c][0] != "x" && isDrawAxisLine(data.columns[c][0], numberArray)){
-         //   console.log(data.columns[c].slice(indexX1, indexX2),indexX1, indexX2)
            for(var i = indexX1; i <= indexX2; i++){
               if(data.columns[c][i] < minValue) {
-          //        console.log(data.columns[c][i]);
                 minValue = data.columns[c][i];
                }
            }
        }
     }
-    console.log(minValue)
     return minValue;
-   /* var minValue = initValue;
-    for(let c = 0; c < data.columns.length; c++){ 
-        if(data.columns[c][0] != "x" && isDrawAxisLine(data.columns[c][0], numberArray)){
-           for(let i = 1; i < data.columns[c].length; i++){
-              if(data.columns[c][i] < minValue) {
-                minValue = data.columns[c][i];
-               }
-           }
-       }
-    }
-    return minValue;*/
 }
 
 function isDrawAxisLine(axisValue, numberArray){   
@@ -407,17 +347,3 @@ function isDrawAxisLine(axisValue, numberArray){
     var index = currentChart.disabledLines.indexOf(axisValue);
     return index == -1 ? true : false;
 }
-
-/* 2
-
-I suspect it's already mentioned in some of the answers, but I'll slightly modify this to have complete working answer (easier to find and use).
-
-Go to: https://nodejs.org/en/download/. Install nodejs.
-
-Install http-server by running command from command prompt npm install -g http-server.
-
-Change into your working directory, where index.html/yoursome.html resides.
-
-Start your http server by running command http-server -c-1
-
-Open web browser to http://localhost:8080 or http://localhost:8080/yoursome.html - depending on your html filename. */

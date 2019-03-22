@@ -1,3 +1,10 @@
+.wrapper{
+	/*display: flex;
+    flex-direction: column;*/
+    width: 90%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
 .btn{
 	min-width: 100px;
 	height: 40px;
@@ -10,21 +17,21 @@
 	padding-left: 16px;
 	cursor: pointer;
 }
-
 h2{
 	text-align: center;
 	margin-top: 16px;
 	margin-bottom: 16px;
 }
-
 .btnBlock{
 	display: flex;
 }
-
 .icon{
 	width: 24px;	
 }
 .btnText{
 	font-size: 22px;
 	padding-left: 16px;
+}
+.fullChart{
+	margin-top: 2%;
 }
