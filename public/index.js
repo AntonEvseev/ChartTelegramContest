@@ -134,7 +134,7 @@ function moveEvent(e, isMobile, positionChartInArray, canvasWidth, canvasHeight)
         draw(currentFullCtx, dataChart[positionElement], currentChart.sliderX1, currentChart.sliderX2, false, canvasHeight, positionChartInArray);                
 
         //DRAW PART CHART Double
-        var currentPartCanvas = document.getElementById('partChart' + d.toString());
+        var currentPartCanvas = document.getElementById('partChart' + positionChartInArray.toString());
         currentPartCanvas.width = window.innerWidth * 0.9;             
         var currentPartCtx = currentPartCanvas.getContext('2d');
         var currentPartCanvasHeight = currentPartCanvas.scrollHeight;
