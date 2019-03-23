@@ -1,7 +1,6 @@
 'use strict';
 
 let dataChart = {};
-//var graph = document.getElementById('fullChart1');//? delete
 var canvasWidth = 0;
 var canvasHeight = 0;
 var chartInfos = [];
@@ -14,18 +13,6 @@ var paddingLeft = 20;//??
 var paddingBottom = 20;//??
 
 init();
-
- /*function loadJSON(callback) {  
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("application/json");
-    xobj.open('GET', './chartdata.json', true); 
-    xobj.onreadystatechange = function () {
-          if (xobj.readyState == 4 && xobj.status == "200") {
-            callback(xobj.responseText);
-          }
-    };
-    xobj.send(null);  
- }*/
  
  function init() {
     let request = new XMLHttpRequest();
@@ -38,116 +25,130 @@ init();
             addButtons();
      });
      request.send();
-   /* loadJSON(function(response) {    
-        let actual_JSON = JSON.parse(response);
-        console.log(actual_JSON);
-        dataChart = actual_JSON;
-        preDraw();
-        
-        addButtons();
-    });*/
 }
 
 function preDraw() {
     for(let d = 0; d < dataChart.length; d++){
         var canvas = document.getElementById('fullChart' + d.toString());
-        //var screenWidth = window.screen.width;
-        canvas.width = window.innerWidth * 0.9; //
-       // console.log(window.screen.width)
-       // console.log(window.innerWidth)
+        canvas.width = window.innerWidth * 0.9; 
         canvasWidth = canvas.scrollWidth;
         canvasHeight = canvas.scrollHeight;         
 
-        canvas.addEventListener('mousedown', function(e) {     
-            drag = true;
-            startDragX = e.offsetX;
-            
-            var currentChart = chartInfos.find(x => x.chartName == e.target.id);
-            startDragSliderX1 = currentChart.sliderX1;
-            startDragSliderX2 = currentChart.sliderX2;
-
-            startDragX >= currentChart.sliderX1 && startDragX <= currentChart.sliderX1 + 10 ? numberSlider = 1 : null;
-            startDragX > currentChart.sliderX2 && startDragX < currentChart.sliderX2 + 10 ? numberSlider = 2 : null;
-            startDragX > currentChart.sliderX1 + 10 && startDragX < currentChart.sliderX2 ? numberSlider = 3 : null;
-            startDragX < currentChart.sliderX1 && startDragX > currentChart.sliderX2 + 10 ? drag = false : null;
+        canvas.addEventListener('mousedown', function(e) {    
+            mouseDown(e, false, 0); 
         });
 
-        canvas.addEventListener('touchend', function(e) {//mouseout
-            drag = false;
-            numberSlider = 0;//??
-        });
-
-        canvas.addEventListener('touchstart', function(e) {//mouseup
-            console.log('mouseup');
-            drag = false;
-            numberSlider = 0;//??
+        canvas.addEventListener('touchstart', function(e) {
+            var rect = canvas.getBoundingClientRect();
+            console.log(rect)
+            mouseDown(e, true, rect.left);
          });
 
-        canvas.addEventListener('touchmove', function(e) {//mousemove
-            if(drag){
-                var currentChart = chartInfos.find(x => x.chartName == e.target.id);
-                if(numberSlider == 1){
-                    e.offsetX >= 0 && e.offsetX < currentChart.sliderX2 - 10 ? currentChart.sliderX1 = e.offsetX : null;
-                }
-                if(numberSlider == 2){
-                    e.offsetX > currentChart.sliderX1 + 10 && e.offsetX <= canvasWidth - 10 ? currentChart.sliderX2 = e.offsetX : null;
-                }
-                if(numberSlider == 3){
-                    var diffDistanceMove = startDragX - e.offsetX;//?? rename
-                    if(currentChart.sliderX1 >= 0 && currentChart.sliderX2 <= canvasWidth - 10){
-                        currentChart.sliderX2 < canvasWidth - 10  ? currentChart.sliderX1 = startDragSliderX1 - diffDistanceMove : null;
-                        currentChart.sliderX1 < 0 ? currentChart.sliderX1 = 0   : null; //?
-                        currentChart.sliderX1 > 0 && currentChart.sliderX2 + 10 <= canvasWidth ? currentChart.sliderX2 = startDragSliderX2 - diffDistanceMove : null;
-                        currentChart.sliderX2 > canvasWidth -10 ? currentChart.sliderX2 = canvasWidth - 10   : null; //?
-                    } 
-                }
-                
-                var id = e.target.id;
-                var currentFullCanvas = document.getElementById(id);
-                var currentFullCtx = currentFullCanvas.getContext('2d');
-                currentFullCtx.clearRect(0,0,canvasWidth,canvasHeight);
-                var positionElement = parseInt(id.substr(id.length - 1), 10);
-                draw(currentFullCtx, dataChart[positionElement], currentChart.sliderX1, currentChart.sliderX2, false, canvasHeight, d);                
+        canvas.addEventListener('touchend', function(e) {
+            console.log('touchend', e)
+            drag = false;
+            numberSlider = 0;
+        });
 
-                //DRAW PART CHART Double
-                var currentPartCanvas = document.getElementById('partChart' + d.toString());
-                currentPartCanvas.width = window.innerWidth * 0.9;   //              
-                var currentPartCtx = currentPartCanvas.getContext('2d');
-                var currentPartCanvasHeight = currentPartCanvas.scrollHeight;
-                currentPartCtx.clearRect(0,0,canvasWidth,currentPartCanvasHeight);
-                draw(currentPartCtx, dataChart[positionElement], currentChart.sliderX1, currentChart.sliderX2, true, currentPartCanvasHeight, d);
-            }  
-          });
+        canvas.addEventListener('mouseout', function(e) {
+            drag = false;
+            numberSlider = 0;
+        });        
+
+         canvas.addEventListener('mouseup', function(e) {
+            drag = false;
+            numberSlider = 0;
+         });
+
+         canvas.addEventListener('mousemove', function(e) {
+            moveEvent(e, false, d, canvasWidth, canvasHeight)
+         });
+
+        canvas.addEventListener('touchmove', function(e) {
+            moveEvent(e, true, d, canvasWidth, canvasHeight)
+        });
 
         if (canvas.getContext){
-           var chartInfo = {};
-           chartInfo.chartName = 'fullChart' + d.toString();
-           chartInfo.sliderX1 = canvasWidth - 300;
-           chartInfo.sliderX2 = canvasWidth - 10;
-           chartInfo.disabledLines = [];
-           chartInfos.push(chartInfo);
+            var chartInfo = {};
+            chartInfo.chartName = 'fullChart' + d.toString();
+            chartInfo.sliderX1 = canvasWidth - 300;
+            chartInfo.sliderX2 = canvasWidth - 10;
+            chartInfo.disabledLines = [];
+            chartInfos.push(chartInfo);
 
-           var ctx = canvas.getContext('2d');       
-           draw(ctx, dataChart[d], chartInfo.sliderX1, chartInfo.sliderX2, false, canvasHeight, d);
+            var ctx = canvas.getContext('2d');       
+            draw(ctx, dataChart[d], chartInfo.sliderX1, chartInfo.sliderX2, false, canvasHeight, d);
 
-           //DRAW PART CHART Double
+                            //DRAW PART CHART Double
             var currentPartCanvas = document.getElementById('partChart' + d.toString());
             currentPartCanvas.width = window.innerWidth * 0.9; //
             var currentPartCtx = currentPartCanvas.getContext('2d');                         
             var currentPartCanvasHeight = currentPartCanvas.scrollHeight;
             currentPartCtx.clearRect(0,0,canvasWidth,currentPartCanvasHeight);
-            draw(currentPartCtx, dataChart[d], chartInfo.sliderX1, chartInfo.sliderX2, true, currentPartCanvasHeight, d);
-            //         
+            draw(currentPartCtx, dataChart[d], chartInfo.sliderX1, chartInfo.sliderX2, true, currentPartCanvasHeight, d);      
         }
     }    
 }
 
+function mouseDown(e, isMobile, rectLeft){
+    var offsetX = 0;
+    isMobile ? offsetX = e.targetTouches[0].pageX - rectLeft : offsetX = e.offsetX;
+    drag = true;
+    startDragX = offsetX;
+    
+    var currentChart = chartInfos.find(x => x.chartName == e.target.id);
+    startDragSliderX1 = currentChart.sliderX1;
+    startDragSliderX2 = currentChart.sliderX2;
+
+    startDragX >= currentChart.sliderX1 && startDragX <= currentChart.sliderX1 + 10 ? numberSlider = 1 : null;
+    startDragX > currentChart.sliderX2 && startDragX < currentChart.sliderX2 + 10 ? numberSlider = 2 : null;
+    startDragX > currentChart.sliderX1 + 10 && startDragX < currentChart.sliderX2 ? numberSlider = 3 : null;
+    startDragX < currentChart.sliderX1 && startDragX > currentChart.sliderX2 + 10 ? drag = false : null;
+}
+
+function moveEvent(e, isMobile, positionChartInArray, canvasWidth, canvasHeight){
+    if(drag){
+        var offsetX = 0;
+        isMobile ? offsetX = e.targetTouches[0].pageX : offsetX = e.offsetX;
+        var currentChart = chartInfos.find(x => x.chartName == e.target.id);
+        if(numberSlider == 1){
+            offsetX >= 0 && offsetX < currentChart.sliderX2 - 10 ? currentChart.sliderX1 = offsetX : null;
+        }
+        if(numberSlider == 2){
+            offsetX > currentChart.sliderX1 + 10 && offsetX <= canvasWidth - 10 ? currentChart.sliderX2 = offsetX : null;
+        }
+        if(numberSlider == 3){
+            var diffDistanceMove = startDragX - offsetX;
+            if(currentChart.sliderX1 >= 0 && currentChart.sliderX2 <= canvasWidth - 10){
+                currentChart.sliderX2 < canvasWidth - 10  ? currentChart.sliderX1 = startDragSliderX1 - diffDistanceMove : null;
+                currentChart.sliderX1 < 0 ? currentChart.sliderX1 = 0 : null; 
+                currentChart.sliderX1 > 0 && currentChart.sliderX2 + 10 <= canvasWidth ? currentChart.sliderX2 = startDragSliderX2 - diffDistanceMove : null;
+                currentChart.sliderX2 > canvasWidth -10 ? currentChart.sliderX2 = canvasWidth - 10 : null; 
+            } 
+        }
+        var id = e.target.id;
+        var currentFullCanvas = document.getElementById(id);
+        var currentFullCtx = currentFullCanvas.getContext('2d');
+        currentFullCtx.clearRect(0,0,canvasWidth,canvasHeight);
+        var positionElement = parseInt(id.substr(id.length - 1), 10);
+        draw(currentFullCtx, dataChart[positionElement], currentChart.sliderX1, currentChart.sliderX2, false, canvasHeight, positionChartInArray);                
+
+        //DRAW PART CHART Double
+        var currentPartCanvas = document.getElementById('partChart' + d.toString());
+        currentPartCanvas.width = window.innerWidth * 0.9;             
+        var currentPartCtx = currentPartCanvas.getContext('2d');
+        var currentPartCanvasHeight = currentPartCanvas.scrollHeight;
+        currentPartCtx.clearRect(0,0,canvasWidth,currentPartCanvasHeight);
+        draw(currentPartCtx, dataChart[positionElement], currentChart.sliderX1, currentChart.sliderX2, true, currentPartCanvasHeight, positionChartInArray);
+    }  
+}
+
 function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
-        //Get Y Max and Min in arrays  
-        var maxY = getMaxY(data, 0, numberArray, 1, data.columns[0].length -1);//, sliderX1, sliderX2 var minY = getMinY(data, maxY, numberArray);
-    var minY = getMinY( data, maxY, numberArray, 1, data.columns[0].length -1);//, sliderX1, sliderX2 var minY = getMinY(data, maxY, numberArray);
-   var maxYPart = 0;
-   var minYPart = 0;
+    //Get Y Max and Min in arrays  
+    var maxY = getMaxY(data, 0, numberArray, 1, data.columns[0].length -1);
+    var minY = getMinY( data, maxY, numberArray, 1, data.columns[0].length -1);
+    var maxYPart = 0;
+    var minYPart = 0;
     
     for(let c = 0; c < data.columns.length; c++){ 
         ctx.beginPath();
@@ -168,8 +169,8 @@ function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
                             //end draw slider
         }
         if(data.columns[c][0] == "x"){            
-            var minX = data.columns[c][1];//??
-            var maxX = data.columns[c][1];//??
+            var minX = data.columns[c][1];
+            var maxX = data.columns[c][1];
 
             var filteredDataX = data.columns[c]; 
 
@@ -191,15 +192,12 @@ function draw(ctx, data, sliderX1, sliderX2, isPartChart, height, numberArray){
 
                 var indexX1 = data.columns[c].indexOf(filteredDataX[0]);
                 var indexX2 = data.columns[c].indexOf(filteredDataX[filteredDataX.length -1]);
-                maxYPart = getMaxY(data, 0, numberArray, indexX1, indexX2);//, sliderX1, sliderX2 var minY = getMinY(data, maxY, numberArray);
-                minYPart = getMinY(data, maxYPart, numberArray, indexX1, indexX2);//, sliderX1, sliderX2 var minY = getMinY(data, maxY, numberArray); 
+                maxYPart = getMaxY(data, 0, numberArray, indexX1, indexX2);
+                minYPart = getMinY(data, maxYPart, numberArray, indexX1, indexX2);
 
                 //Draw Data Info                
-                //var stepIndex = Math.floor(filteredDataX.length/6);//?????
                 var stepIndex = 0;
                 filteredDataX.length >= 8 ? stepIndex = Math.floor(filteredDataX.length/6) : stepIndex = 1;
-                //stepIndex < 6 ? stepIndex = 6 : null;
-               // console.log(filteredDataX, stepIndex)
                 for(var i = 0; i < filteredDataX.length; i = i + stepIndex) {
                     ctx.fillText(new Date(filteredDataX[i]).toDateString(), getXPixel(filteredDataX[i], canvasWidth, maxX, minX), 300);//change height
                 }
@@ -254,7 +252,7 @@ function addButtons() {
                 element.insertAdjacentHTML('beforeend', blockButtontHTML);
                 var buttonsToSubs = document.getElementById(i.toString() + '-' + dataChart[i].names[prop].toString());
                                         //Subscription Btn Click
-                buttonsToSubs.addEventListener('mousedown', function(e) { //mousedown
+                buttonsToSubs.addEventListener('mousedown', function(e) { 
 
                     var id = e.target.id;
                     if (e.currentTarget !== e.target) {
@@ -290,8 +288,7 @@ function addButtons() {
                     draw(currentFullCtx, dataChart[position], currentChart.sliderX1, currentChart.sliderX2, false, canvasHeight, position);
 
                         //DRAW PART CHART Double
-                    var currentPartCanvas = document.getElementById('partChart' + position.toString());
-                     // currentPartCanvas.width = window.screen.width * 0.9;                 
+                    var currentPartCanvas = document.getElementById('partChart' + position.toString());               
                     var currentPartCtx = currentPartCanvas.getContext('2d');
                     var currentPartCanvasHeight = currentPartCanvas.scrollHeight;
                     currentPartCtx.clearRect(0,0,canvasWidth,currentPartCanvasHeight);
